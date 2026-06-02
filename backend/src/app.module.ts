@@ -17,7 +17,7 @@ import { OrderModule } from './order/order.module';
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/',
     }),
-    MongooseModule.forRoot(process.env.DATABASE_URl),
+    MongooseModule.forRoot(process.env.DATABASE_URL),
     FilmsModule,
     OrderModule,
   ],
