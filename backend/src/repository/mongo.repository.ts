@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { Model } from 'mongoose';
 import {
@@ -6,13 +5,13 @@ import {
   GetFilmsResponseDto,
   ScheduleResponseDto,
   ScheduleDto,
-} from 'src/films/dto/films.dto';
+} from '../films/dto/films.dto';
 import {
   CreateOrderDto,
   OrderResponseDto,
   OrderResultDto,
   TicketDto,
-} from 'src/order/dto/order.dto';
+} from '../order/dto/order.dto';
 
 export class MongoRepository<T> {
   constructor(private readonly model: Model<T>) {}
@@ -50,34 +49,33 @@ export class MongoRepository<T> {
   async takeSeats(tickets: TicketDto[]) {
     for (const ticket of tickets) {
       const place = `${ticket.row}:${ticket.seat}`;
+      const takenSeat = await this.model.findOne({
+        id: ticket.film,
+        schedule: {
+          $elemMatch: {
+            id: ticket.session,
+            taken: place,
+          },
+        },
+      });
 
-      const result = await this.model.updateOne(
-        {
-          id: ticket.film,
-          'schedule.id': ticket.session,
-          'schedule.taken': { $ne: place },
-        },
-        {
-          $push: { 'schedule.$.taken': place },
-        },
+      if (takenSeat) {
+        throw new Error(
+          `Место ${place} уже занято на сеансе ${ticket.session}`,
+        );
+      }
+
+      const film = await this.model.findOneAndUpdate(
+        { id: ticket.film },
+        { $push: { 'schedule.$[element].taken': place } },
+        { arrayFilters: [{ 'element.id': ticket.session }] },
       );
-
-      if (result.matchedCount === 0) {
-        const film = await this.model.findOne({
-          id: ticket.film,
-          'schedule.id': ticket.session,
-        });
-
-        if (!film) {
-          throw new BadRequestException(
-            `Фильм или сеанс не найден. filmId=${ticket.film}, sessionId=${ticket.session}`,
-          );
-        }
-
-        throw new BadRequestException(`Место ${place} уже занято`);
+      if (!film) {
+        throw new Error(
+          `Фильм или сеанс не найден. filmId=${ticket.film}, sessionId=${ticket.session}`,
+        );
       }
     }
-
     return tickets;
   }
 

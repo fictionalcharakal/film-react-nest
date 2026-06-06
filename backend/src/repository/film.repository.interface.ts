@@ -2,8 +2,8 @@ import {
   FilmsDto,
   GetFilmsResponseDto,
   ScheduleDto,
-} from 'src/films/dto/films.dto';
-import { CreateOrderDto, OrderResponseDto } from 'src/order/dto/order.dto';
+} from '../films/dto/films.dto';
+import { CreateOrderDto, OrderResponseDto } from '../order/dto/order.dto';
 
 export interface FilmRepository {
   getAllFilms(): Promise<GetFilmsResponseDto>;
