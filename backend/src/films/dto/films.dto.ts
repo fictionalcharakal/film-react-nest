@@ -17,8 +17,7 @@ export class FilmsDto {
   @IsString()
   director: string;
 
-  @IsArray()
-  @IsString({ each: true })
+  @IsString()
   tags: string[];
 
   @IsString()
@@ -39,7 +38,7 @@ export class FilmsDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ScheduleDto)
-  schedule: ScheduleDto[];
+  schedules: ScheduleDto[];
 }
 
 export class ScheduleDto {

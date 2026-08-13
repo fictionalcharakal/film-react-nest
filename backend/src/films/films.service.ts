@@ -4,19 +4,28 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Film } from './schemas/Film.schema';
-import { Model } from 'mongoose';
-import { MongoRepository } from 'src/repository/mongo.repository';
 import { GetFilmsResponseDto, ScheduleResponseDto } from './dto/films.dto';
 import { isUUID } from 'class-validator';
+import { FilmPostgresRepository } from '../repository/postgres.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Film } from './entities/film.entity';
+import { Repository } from 'typeorm';
+import { Schedule } from './entities/schedule.entity';
 
 @Injectable()
 export class FilmsService {
-  private repository: MongoRepository<Film>;
+  private repository: FilmPostgresRepository;
 
-  constructor(@InjectModel(Film.name) private filmModel: Model<Film>) {
-    this.repository = new MongoRepository(this.filmModel);
+  constructor(
+    @InjectRepository(Film)
+    private filmRepo: Repository<Film>,
+    @InjectRepository(Schedule)
+    private scheduleRepo: Repository<Schedule>,
+  ) {
+    this.repository = new FilmPostgresRepository(
+      this.filmRepo,
+      this.scheduleRepo,
+    );
   }
 
   async getAllFilms(): Promise<GetFilmsResponseDto> {
