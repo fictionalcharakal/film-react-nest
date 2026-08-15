@@ -1,13 +1,18 @@
 import { Module } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { OrderController } from './order.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Film } from '../films/entities/film.entity';
-import { Schedule } from '../films/entities/schedule.entity';
+import { FilmPostgresRepository } from '../repository/postgres.repository';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Film, Schedule])],
-  providers: [OrderService],
+  imports: [DatabaseModule],
+  providers: [
+    OrderService,
+    {
+      provide: 'FILM_REPOSITORY',
+      useClass: FilmPostgresRepository,
+    },
+  ],
   controllers: [OrderController],
 })
 export class OrderModule {}

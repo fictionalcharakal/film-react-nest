@@ -34,11 +34,6 @@ export class FilmsDto {
 
   @IsString()
   description: string;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ScheduleDto)
-  schedules: ScheduleDto[];
 }
 
 export class ScheduleDto {

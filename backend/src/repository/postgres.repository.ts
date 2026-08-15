@@ -17,9 +17,10 @@ import {
   OrderResultDto,
   TicketDto,
 } from '../order/dto/order.dto';
+import { FilmRepository } from './film.repository.interface';
 
 @Injectable()
-export class FilmPostgresRepository {
+export class FilmPostgresRepository implements FilmRepository {
   constructor(
     @InjectRepository(Film)
     private readonly filmRepo: Repository<Film>,
@@ -28,9 +29,7 @@ export class FilmPostgresRepository {
   ) {}
 
   async getAllFilms(): Promise<GetFilmsResponseDto> {
-    const films = await this.filmRepo.find({
-      relations: ['schedules'],
-    });
+    const films = await this.filmRepo.find();
     const items = films.map((film) => this.toFilmsDto(film));
     return {
       total: films.length,
@@ -132,7 +131,6 @@ export class FilmPostgresRepository {
     title: film.title,
     about: film.about,
     description: film.description,
-    schedules: (film.schedules ?? []).map(this.toScheduleDto),
   });
 
   private toScheduleDto = (schedule: Schedule): ScheduleDto => ({

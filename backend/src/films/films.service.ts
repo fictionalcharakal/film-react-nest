@@ -1,32 +1,20 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { GetFilmsResponseDto, ScheduleResponseDto } from './dto/films.dto';
 import { isUUID } from 'class-validator';
-import { FilmPostgresRepository } from '../repository/postgres.repository';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Film } from './entities/film.entity';
-import { Repository } from 'typeorm';
-import { Schedule } from './entities/schedule.entity';
+import { FilmRepository } from '../repository/film.repository.interface';
 
 @Injectable()
 export class FilmsService {
-  private repository: FilmPostgresRepository;
-
   constructor(
-    @InjectRepository(Film)
-    private filmRepo: Repository<Film>,
-    @InjectRepository(Schedule)
-    private scheduleRepo: Repository<Schedule>,
-  ) {
-    this.repository = new FilmPostgresRepository(
-      this.filmRepo,
-      this.scheduleRepo,
-    );
-  }
+    @Inject('FILM_REPOSITORY')
+    private readonly repository: FilmRepository,
+  ) {}
 
   async getAllFilms(): Promise<GetFilmsResponseDto> {
     return this.repository.getAllFilms();

@@ -1,24 +1,34 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, IsString, ValidateNested } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsEmail,
+  IsInt,
+  IsPositive,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 
-//TODO реализовать DTO для /orders
 export class CreateOrderDto {
   @IsString()
   phone: string;
-  @IsString()
+
+  @IsEmail()
   email: string;
 
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => TicketDto)
   tickets: TicketDto[];
 }
 
 export class TicketDto {
-  @IsString()
+  @IsUUID()
   film: string;
 
-  @IsString()
+  @IsUUID()
   session: string;
 
   @IsString()
@@ -31,6 +41,7 @@ export class TicketDto {
   seat: number;
 
   @IsInt()
+  @IsPositive()
   price: number;
 }
 
